@@ -1,15 +1,18 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div class="container-fluid">
+    <TTN_Header/>
+  </div>
+
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
+import TTN_Header from './layout/TTN_Header.vue';
+import 'bootstrap'
+import 'bootstrap/dist/css/bootstrap.min.css';
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    TTN_Header
   }
 }
 </script>
