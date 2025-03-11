@@ -69,9 +69,46 @@ const action = {
       console.error("Có lỗi xảy ra:", error);
     }
   },
+  async fetchBills({ commit, state }, account_id) {
+    if (state.products.length > 0) {
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:3000/billMongo/${account_id}`);
+      console.log("Response status:", response.status);
+
+      if (!response.ok) throw new Error("API không phản hồi");
+
+      const data = await response.json();
+      console.log("Dữ liệu từ API:", data);
+
+      commit('SET_BILL', data);
+    } catch (error) {
+      console.error("Có lỗi xảy ra:", error);
+    }
+  },
 
 
   //POST
+  async addFeedback({ commit }, newFeedback) {
+    try {
+      const response = await fetch("http://localhost:3000/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newFeedback),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Lỗi HTTP! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Đánh giá đã thêm:", data);
+      commit("ADD_FEEDBACK", data);
+    } catch (error) {
+      console.error("Lỗi khi thêm đánh giá:", error);
+    }
+  },
   async addProduct({ commit }, newProduct) {
     try {
       const response = await fetch("http://localhost:3000/product", {
@@ -110,8 +147,28 @@ const action = {
       console.error("Lỗi khi thêm sản phẩm:", error);
     }
   },
+  async addBill({ commit }, newCart) {
+    try {
+      const response = await fetch("http://localhost:3000/billMongo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newCart),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Lỗi HTTP! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Giỏ hàng đã thêm:", data);
+      commit("ADD_BILL", data);
+    } catch (error) {
+      console.error("Lỗi khi thêm sản phẩm:", error);
+    }
+  },
 
   //Delete
+
   async deleteProduct({ commit }, id) {
     try {
       const response = await fetch(`http://localhost:3000/product/${id}`, {
@@ -120,6 +177,23 @@ const action = {
       });
       if (response.ok) {
         commit('DELETE_PRODUCT', id);
+      } else {
+        alert('Xoa that bai')
+      }
+
+    } catch (error) {
+      console.error(error)
+    }
+
+  },
+  async clearCart({ commit }, account_id) {
+    try {
+      const response = await fetch(`http://localhost:3000/cart/${account_id}`, {
+        method: "DELETE"
+
+      });
+      if (response.ok) {
+        commit('CLEAR_CART', account_id);
       } else {
         alert('Xoa that bai')
       }
@@ -169,7 +243,30 @@ const action = {
     } catch (error) {
       console.error('Lỗi khi cập nhật sản phẩm:', error);
     }
+  },
+  async updateBillFeedback({ commit }, account_id) {
+    try {
+      const response = await fetch(`http://localhost:3000/billMongo/${account_id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ feedback: true }), // Cập nhật feedback thành true
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        commit('UPDATE_BILL', data);
+        console.log('Cập nhật feedback thành công:', data);
+      } else {
+        console.error('Cập nhật feedback thất bại:', data);
+      }
+    } catch (error) {
+      console.error('Lỗi khi cập nhật feedback:', error);
+    }
   }
+  
 
 }
 

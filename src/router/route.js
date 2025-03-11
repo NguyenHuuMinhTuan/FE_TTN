@@ -8,12 +8,18 @@ import TTN_Login from "@/auth/TTN_Login.vue";
 import TTN_Cart from "@/components/TTN_Cart.vue";
 import TTN_Voucher from "@/components/TTN_Voucher.vue";
 import TTN_Register from "@/auth/TTN_Register.vue";
+import TTN_Bill from "@/components/TTN_Bill.vue";
 
 const routes = [
     {
         path: "/",
         name: 'TTN_Home',
         components: { main: TTN_Home }
+    },
+    {
+        path: "/bill/:id",
+        name: 'TTN_Bill',
+        components: { main: TTN_Bill }
     },
     {
         path: "/register",

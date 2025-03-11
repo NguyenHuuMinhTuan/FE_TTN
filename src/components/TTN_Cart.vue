@@ -59,10 +59,9 @@
       />
     </div>
 
-    <!-- Modal Thanh Toán -->
     <div v-if="showModal" class="modal-overlay">
       <div class="modal-content">
-        <h3 style="color: green">Thông tin thanh toán</h3>
+        <h3 style="color: green">Xác nhận đơn hàng</h3>
         <div class="row">
           <div class="col-md-4">
             <label>Username:</label>
@@ -73,26 +72,19 @@
               class="form-control"
             />
             <label>Số điện thoại:</label>
-            <input
-              type="text"
-              v-model="phone"
-              class="form-control"
-              placeholder="Nhập số điện thoại"
-              required
-            />
+            <input type="text" v-model="phone" class="form-control" required />
             <label>Địa chỉ:</label>
             <input
               type="text"
               v-model="address"
               class="form-control"
-              placeholder="Nhập địa chỉ"
               required
             />
           </div>
           <div class="col-md-8">
-            <h5 style="text-align: left">Sản phẩm trong đơn hàng</h5>
+            <h5>Sản phẩm trong đơn hàng</h5>
             <ul>
-              <li v-for="item in allCarts" :key="item.id">
+              <li v-for="item in allCarts" :key="item.product_id">
                 {{ item.name }} - {{ item.quantity }} x
                 {{ formatCurrency(item.price) }}
               </li>
@@ -100,51 +92,25 @@
             <h3 style="color: red">
               Tổng tiền: {{ formatCurrency(finalPrice) }}
             </h3>
-            <h5 style="text-align: left">Phương thức thanh toán</h5>
-            <div class="d-flex flex-column align-items-start">
-              <label class="d-flex align-items-center">
-                <input
-                  type="radio"
-                  v-model="paymentMethod"
-                  value="cash"
-                  class="me-2"
-                />
-                Tiền mặt
-              </label>
-              <label class="d-flex align-items-center">
-                <input
-                  type="radio"
-                  v-model="paymentMethod"
-                  value="banking"
-                  class="me-2"
-                />
-                Chuyển khoản
-              </label>
-              <label class="d-flex align-items-center">
-                <input
-                  type="radio"
-                  v-model="paymentMethod"
-                  value="other"
-                  class="me-2"
-                />
-                Khác
-              </label>
-            </div>
-
-            <h5>Nhập Voucher</h5>
+            <h5>Phương thức thanh toán</h5>
+            <select v-model.lazy="paymentMethod" class="form-control">
+              <option value="cash">Tiền mặt</option>
+              <option value="banking">Chuyển khoản</option>
+            </select>
+            <h5>Nhập mã giảm giá</h5>
             <input
               type="text"
               v-model="voucher"
               class="form-control"
-              placeholder="Nhập mã giảm giá"
-              @input="applyVoucher"
+              placeholder="Nhập mã voucher"
             />
-            <span v-if="voucherError" class="text-danger">{{
-              voucherError
-            }}</span>
-            <span v-if="voucherSuccess" class="text-success">{{
-              voucherSuccess
-            }}</span>
+            <button class="btn btn-primary mt-2" @click="applyVoucher">
+              Áp dụng mã giảm giá
+            </button>
+            <p v-if="voucherError" style="color: red">{{ voucherError }}</p>
+            <p v-if="voucherSuccess" style="color: green">
+              {{ voucherSuccess }}
+            </p>
           </div>
         </div>
         <div class="modal-footer">
@@ -195,6 +161,8 @@ export default {
     ...mapActions({
       fetchCarts: "fetchCarts",
       fetchVouchers: "fetchVouchers",
+      addBill: "addBill",
+      clearCart: "clearCart",
       deleteCart: "deleteCart",
     }),
     async deleteItemsInCart(account_id, product_id) {
@@ -236,17 +204,41 @@ export default {
         currency: "VND",
       }).format(value);
     },
-    confirmPayment() {
-      alert(
-        `Thanh toán thành công!\nTổng tiền: ${this.finalPrice}₫\nPhương thức: ${this.paymentMethod}`
-      );
-      this.showModal = false;
+    async confirmPayment() {
+      if (!this.phone || !this.address) {
+        alert("Vui lòng nhập đầy đủ thông tin!");
+        return;
+      }
+      const newBill = {
+        account_id: this.$route.params.id,
+        address: this.address,
+        phone: this.phone,
+        create_bill: new Date(),
+        allItems: this.allCarts,
+        totalPrice: this.finalPrice,
+        discount: this.discount, // Thêm discount vào đơn hàng
+        voucher: this.voucher, // Lưu mã voucher đã sử dụng
+        method_payment: this.paymentMethod === "cash" ? "cash" : "banking", 
+      };
+      try {
+        await this.addBill(newBill);
+        await this.clearCart(this.$route.params.id);
+        alert("Thanh toán thành công!");
+        this.showModal = false;
+      } catch (error) {
+        console.error("Lỗi thanh toán:", error);
+        alert("Thanh toán thất bại!");
+      }
     },
   },
+
   async mounted() {
     await this.fetchCarts(this.$route.params.id);
     await this.fetchVouchers();
-    
+    if (performance.navigation.type === 1) {
+    return; // Tránh vòng lặp reload
+  }
+  window.location.reload();
   },
 };
 </script>

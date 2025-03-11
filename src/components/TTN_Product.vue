@@ -7,11 +7,11 @@
           Tìm kiếm theo danh mục
         </label>
         <select class="form-control" v-model="category">
-          <option value="">Tất cả</option>
           <option value="1">Điện thoại</option>
           <option value="2">Laptop</option>
-          <option value="3">Máy tính bảng</option>
+          <option value="5">Máy chụp ảnh</option>
           <option value="4">Router</option>
+          <option value="6">Máy tính bảng</option>
         </select>
       </div>
 

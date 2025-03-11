@@ -9,6 +9,9 @@ const mutation = {
   SET_CART(state, carts){
     state.carts = carts;
   },
+  SET_BILL(state, bills){
+    state.bills = bills;
+  },
   SET_VOUCHER(state, vouchers){
     state.vouchers = vouchers
   },
@@ -20,7 +23,13 @@ const mutation = {
   ADD_CART(state, newCart){
     state.carts.push(newCart)
   },
-  
+  ADD_BILL(state, newBill){
+    state.bills.push(newBill)
+  },
+  ADD_FEEDBACK(state, newFeedback){
+    state.feedbacks.push(newFeedback)
+  },
+
   //Delete 
   DELETE_PRODUCT(state, id) {
     if (state.allProducts && state.allProducts.length > 0) {
@@ -38,6 +47,19 @@ const mutation = {
     state.allCarts = state.allCarts.filter(
       (item) => !(item.account_id === account_id && item.product_id === product_id)
     );
+  },
+  CLEAR_CART(state, { account_id }) {
+    state.allBills = state.allBills.filter(
+      (item) => !(item.account_id === account_id)
+    );
+  },
+
+  //Update
+  UPDATE_BILL(state, updatedBill) {
+    const index = state.allBills.findIndex(bill => bill._id === updatedBill._id);
+    if (index !== -1) {
+      state.allBills[index] = updatedBill;
+    }
   }
 }
 export default mutation;

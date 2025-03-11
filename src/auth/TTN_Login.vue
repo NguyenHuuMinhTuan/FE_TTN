@@ -5,7 +5,9 @@
       <form @submit.prevent="login">
         <!-- Tên tài khoản -->
         <div class="input-group mb-3">
-          <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+          <span class="input-group-text"
+            ><i class="bi bi-person-fill"></i
+          ></span>
           <input
             type="text"
             class="form-control"
@@ -45,7 +47,8 @@
 <script>
 import axios from "axios";
 import Swal from "sweetalert2";
-import { eventBus } from "@/router/eventBus";
+import eventBus from "@/router/eventBus";
+
 export default {
   data() {
     return {
@@ -63,11 +66,13 @@ export default {
 
         if (response.data.success) {
           const userData = {
-            username: this.username,
+            username: response.data.username,
             role: response.data.role,
             id: response.data.id,
           };
+
           localStorage.setItem("currentUser", JSON.stringify(userData));
+
           Swal.fire({
             icon: "success",
             title: "Đăng nhập thành công!",
@@ -76,14 +81,22 @@ export default {
             showConfirmButton: false,
           });
 
+          console.log("[Login] userData:", userData);
+
           setTimeout(() => {
             this.$router.push("/");
-            eventBus.emit("user-logged-in");
+            if (eventBus && typeof eventBus.emit === "function") {
+              console.log("[EventBus] Emitting loginSuccess:", userData);
+              eventBus.emit("loginSuccess", userData);
+            } else {
+              console.error("[EventBus] eventBus is undefined or invalid");
+            }
           }, 2000);
         } else {
           throw new Error("Tài khoản hoặc mật khẩu không đúng");
         }
       } catch (error) {
+        console.error("[Login Error]:", error);
         Swal.fire({
           icon: "error",
           title: "Đăng nhập thất bại!",
@@ -93,6 +106,7 @@ export default {
     },
   },
 };
+
 </script>
 
 <style>
