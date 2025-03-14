@@ -15,6 +15,12 @@ const mutation = {
   SET_VOUCHER(state, vouchers){
     state.vouchers = vouchers
   },
+  SET_ALLBILLS(state, bills){
+    state.bills = bills
+  },
+  SET_ACCOUNTS(state, accounts){
+    state.accounts = accounts
+  },
 
   //add
   ADD_PRODUCT(state, newProduct){
@@ -29,6 +35,10 @@ const mutation = {
   ADD_FEEDBACK(state, newFeedback){
     state.feedbacks.push(newFeedback)
   },
+  ADD_ACCOUNT(state, newAccount){
+    state.accounts.push(newAccount)
+  },
+  
 
   //Delete 
   DELETE_PRODUCT(state, id) {
@@ -59,6 +69,12 @@ const mutation = {
     const index = state.allBills.findIndex(bill => bill._id === updatedBill._id);
     if (index !== -1) {
       state.allBills[index] = updatedBill;
+    }
+  },
+  UPDATE_ACCOUNT(state, updatedAccount) {
+    const index = state.accounts.findIndex(acc => acc.id === updatedAccount.id);
+    if (index !== -1) {
+      state.accounts.splice(index, 1, updatedAccount);
     }
   }
 }

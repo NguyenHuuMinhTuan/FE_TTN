@@ -118,7 +118,7 @@
     </nav>
   </div>
 
-  <router-view name="main" />
+  <router-view/>
 </template>
 
 <script>

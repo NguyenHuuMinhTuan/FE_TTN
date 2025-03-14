@@ -60,7 +60,7 @@
     </div>
 
     <div v-if="showModal" class="modal-overlay">
-      <div class="modal-content">
+      <div class="modal-content" style="width: 90%;">
         <h3 style="color: green">Xác nhận đơn hàng</h3>
         <div class="row">
           <div class="col-md-4">
@@ -256,10 +256,11 @@ export default {
   justify-content: center;
 }
 .modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  width: 60%;
+  width: 90%;
+  max-width: 1000px;
+  height: auto; /* Để nội dung không bị giới hạn */
+  max-height: 90vh; /* Đảm bảo modal không vượt quá màn hình */
+  overflow-y: auto; /* Cho phép cuộn nếu nội dung quá dài */
 }
 .modal-footer {
   display: flex;

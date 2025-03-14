@@ -1,4 +1,4 @@
-
+import axios from "axios";
 const action = {
   //fetch
   async fetchProducts({ commit, state }) {
@@ -69,6 +69,23 @@ const action = {
       console.error("Có lỗi xảy ra:", error);
     }
   },
+  async fetchAllBills({ commit, state }) {
+    if (state.bills.length > 0) {
+      return
+    }
+    try {
+      const response = await fetch("http://localhost:3000/billMongo")
+      console.log(response.status);
+
+      if (!response.ok) throw new Error("API không phản hồi")
+
+      const data = await response.json()
+      commit("SET_ALLBILLS", data);
+    } catch (error) {
+      console.log("có lỗi xảy ra :" + error);
+
+    }
+  },
   async fetchBills({ commit, state }, account_id) {
     if (state.products.length > 0) {
       return;
@@ -87,7 +104,18 @@ const action = {
       console.error("Có lỗi xảy ra:", error);
     }
   },
+  async fetchAccounts({ commit }) {
+    try {
+      const response = await axios.get("http://localhost:3000/account", {
+        withCredentials: true, // Gửi cookie theo request
+      });
 
+      console.log("Dữ liệu từ API:", response.data);
+      commit("SET_ACCOUNTS", response.data);
+    } catch (error) {
+      console.error("Có lỗi xảy ra:", error);
+    }
+  },
 
   //POST
   async addFeedback({ commit }, newFeedback) {
@@ -143,6 +171,25 @@ const action = {
       const data = await response.json();
       console.log("Giỏ hàng đã thêm:", data);
       commit("ADD_CART", data);
+    } catch (error) {
+      console.error("Lỗi khi thêm sản phẩm:", error);
+    }
+  },
+  async addAccount({ commit }, newAccount) {
+    try {
+      const response = await fetch("http://localhost:3000/account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newAccount),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Lỗi HTTP! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Giỏ hàng đã thêm:", data);
+      commit("ADD_ACCOUNT", data);
     } catch (error) {
       console.error("Lỗi khi thêm sản phẩm:", error);
     }
@@ -253,9 +300,9 @@ const action = {
         },
         body: JSON.stringify({ feedback: true }), // Cập nhật feedback thành true
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         commit('UPDATE_BILL', data);
         console.log('Cập nhật feedback thành công:', data);
@@ -265,8 +312,53 @@ const action = {
     } catch (error) {
       console.error('Lỗi khi cập nhật feedback:', error);
     }
-  }
-  
+  },
+  async updateAccountById({ commit }, {id, newAccount}) {
+    console.log("Dữ liệu gửi lên API:", id, newAccount);
+    try {
+
+      const response = await fetch(`http://localhost:3000/account/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newAccount), 
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        commit('UPDATE_ACCOUNT', data);
+        console.log('Cập nhật account thành công:', data);
+      } else {
+        console.error('Cập nhật account thất bại:', data);
+      }
+    } catch (error) {
+      console.error('Lỗi khi cập nhật account:', error);
+    }
+  },
+  async updateActiveStatus({ commit }, id) {
+    try {
+        const response = await fetch(`http://localhost:3000/account/active/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            commit('UPDATE_ACCOUNT_ACTIVE', data);
+            console.log('Cập nhật ACTIVE thành công:', data);
+        } else {
+            console.error('Cập nhật ACTIVE thất bại:', data);
+        }
+    } catch (error) {
+        console.error('Lỗi khi cập nhật ACTIVE:', error);
+    }
+}
+
 
 }
 

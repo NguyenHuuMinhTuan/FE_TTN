@@ -3,7 +3,8 @@ const state={
     feedbacks:[],
     carts:[],
     vouchers:[],
-    bills:[]
+    bills:[],
+    accounts:[],
     
 }
 export default state;

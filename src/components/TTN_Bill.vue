@@ -2,12 +2,18 @@
   <div class="container mt-4">
     <h2 class="text-center text-primary mb-4">Danh sách hóa đơn</h2>
 
-    <div class="table-responsive">
+    <!-- Kiểm tra nếu không có hóa đơn -->
+    <div v-if="allBills.length === 0" class="text-center text-danger fs-4">
+      Không có hóa đơn nào!
+    </div>
+
+    <div v-else class="table-responsive">
       <table class="table table-hover table-bordered text-center">
         <thead class="table-dark">
           <tr>
             <th>Mã hóa đơn</th>
             <th>Phương thức thanh toán</th>
+            <th>Ngày mua</th>
             <th>Tên sản phẩm</th>
             <th>Hình ảnh</th>
             <th>Số lượng</th>
@@ -25,6 +31,9 @@
               >
                 {{ bill.method_payment ? "Tiền mặt" : "Chuyển khoản" }}
               </span>
+            </td>
+            <td class="align-middle">
+              {{ formatDateTime(bill.create_bill) }}
             </td>
             <td class="align-middle">
               <ul class="list-unstyled m-0">
@@ -59,7 +68,8 @@
               <ul class="list-unstyled m-0">
                 <li v-for="item in bill.allItems" :key="item.product_id">
                   <button
-                    class="btn"
+                    class="btn w-100"
+                    style="border: 1px white solid"
                     :class="bill.feedback ? 'btn-secondary' : 'btn-primary'"
                     :disabled="bill.feedback"
                     @click="openReviewModal(item.product_id, bill)"
@@ -134,6 +144,19 @@ export default {
       addFeedback: "addFeedback",
       updateBillFeedback: "updateBillFeedback",
     }),
+    formatDateTime(dateString) {
+      if (!dateString) return "";
+      const date = new Date(dateString);
+      return date.toLocaleString("vi-VN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      });
+    },
     formatCurrency(value) {
       return new Intl.NumberFormat("vi-VN", {
         style: "currency",
@@ -177,9 +200,9 @@ export default {
   async mounted() {
     await this.fetchBills(this.$route.params.id);
     if (performance.navigation.type === 1) {
-    return;
-  }
-  window.location.reload();
+      return;
+    }
+    window.location.reload();
   },
 };
 </script>

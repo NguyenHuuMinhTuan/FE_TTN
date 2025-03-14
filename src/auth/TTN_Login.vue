@@ -48,7 +48,6 @@
 import axios from "axios";
 import Swal from "sweetalert2";
 import eventBus from "@/router/eventBus";
-
 export default {
   data() {
     return {
@@ -59,20 +58,22 @@ export default {
   methods: {
     async login() {
       try {
-        const response = await axios.post("http://localhost:3000/auth/login", {
-          username: this.username,
-          password: this.password,
-        });
+        const response = await axios.post(
+          "http://localhost:3000/auth/login",
+          {
+            username: this.username,
+            password: this.password,
+          },
+          { withCredentials: true }
+        );
 
         if (response.data.success) {
           const userData = {
-            username: response.data.username,
+            username: this.username,
             role: response.data.role,
             id: response.data.id,
           };
-
           localStorage.setItem("currentUser", JSON.stringify(userData));
-
           Swal.fire({
             icon: "success",
             title: "Đăng nhập thành công!",
@@ -81,22 +82,19 @@ export default {
             showConfirmButton: false,
           });
 
-          console.log("[Login] userData:", userData);
-
           setTimeout(() => {
             this.$router.push("/");
-            if (eventBus && typeof eventBus.emit === "function") {
-              console.log("[EventBus] Emitting loginSuccess:", userData);
+            console.log(eventBus);
+            if (eventBus) {
               eventBus.emit("loginSuccess", userData);
             } else {
-              console.error("[EventBus] eventBus is undefined or invalid");
+              console.error("eventBus is undefined");
             }
           }, 2000);
         } else {
           throw new Error("Tài khoản hoặc mật khẩu không đúng");
         }
       } catch (error) {
-        console.error("[Login Error]:", error);
         Swal.fire({
           icon: "error",
           title: "Đăng nhập thất bại!",
@@ -106,7 +104,6 @@ export default {
     },
   },
 };
-
 </script>
 
 <style>

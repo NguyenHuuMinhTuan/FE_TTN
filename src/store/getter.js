@@ -3,7 +3,8 @@ const getter={
     allFeedbacks: state => state.feedbacks || [],
     allCarts: state => state.carts || [],
     allVouchers: state => state.vouchers || [],
-    allBills: state => state.bills || []
+    allBills: state => state.bills || [],
+    allAccounts: state => state.accounts || []
 
 }
 export default getter;
