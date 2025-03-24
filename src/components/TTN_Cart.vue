@@ -177,6 +177,7 @@ export default {
         console.error("Lỗi khi xóa sản phẩm:", error);
         alert("Xóa thất bại!");
       }
+      window.location.reload();
     },
     applyVoucher() {
       if (!this.allVoucher || this.allVoucher.length === 0) {
@@ -225,6 +226,7 @@ export default {
         await this.clearCart(this.$route.params.id);
         alert("Thanh toán thành công!");
         this.showModal = false;
+        window.location.reload();
       } catch (error) {
         console.error("Lỗi thanh toán:", error);
         alert("Thanh toán thất bại!");

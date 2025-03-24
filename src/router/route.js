@@ -14,6 +14,8 @@ import ManagerCategory from "@/admin/ManagerCategory.vue";
 import ManagerAccount from "@/admin/ManagerAccount.vue";
 import ManagerRevenue from "@/admin/ManagerRevenue.vue";
 import NotFound from "@/Process/NotFound.vue";
+import TTN_Service from "@/components/TTN_Service.vue";
+
 const routes = [
     {
         path: "/",
@@ -85,6 +87,11 @@ const routes = [
         name: "TTN_Product",
         component: TTN_Product,
     },
+    {
+        path: "/service",
+        name: "TTN_Service",
+        component: TTN_Service, 
+    },
     // Route 404 phải để cuối
     {
         path: "/:pathMatch(.*)*",
@@ -97,4 +104,5 @@ const router = createRouter({
     history: createWebHistory(),
     routes
 })
+
 export default router

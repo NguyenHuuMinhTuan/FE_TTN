@@ -86,7 +86,7 @@
               </router-link>
             </li>
             <li class="nav-item">
-              <router-link to="#" class="nav-link">Service</router-link>
+              <router-link to="/service" class="nav-link">Service</router-link>
             </li>
             <li class="nav-item" v-if="currentUser">
               <router-link
@@ -116,9 +116,10 @@
         </div>
       </div>
     </nav>
+    <div class="content">
+      <router-view :key="$route.fullPath"/>
+    </div>
   </div>
-
-  <router-view/>
 </template>
 
 <script>
@@ -160,4 +161,104 @@ export default {
 </script>
 
 <style>
+/* Navbar chính */
+.navbar {
+  background: rgba(0, 0, 0, 0.85) !important; /* Màu nền tối với độ trong suốt */
+  backdrop-filter: blur(10px); /* Hiệu ứng mờ nền */
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  padding: 10px 20px;
+}
+.content {
+  flex: 1;
+  display: flex;
+  margin-top: 90px;
+  flex-direction: column;
+  min-height: calc(100vh - 56px); /* 56px là chiều cao navbar */
+}
+/* Logo */
+.navbar-brand {
+  font-size: 24px;
+  font-weight: bold;
+  color: #00A8FF !important;
+  transition: color 0.3s ease-in-out;
+}
+
+.navbar-brand:hover {
+  color: #ffffff !important;
+}
+
+/* Navbar Items */
+.navbar-nav .nav-link {
+  color: #ffffff !important;
+  font-size: 16px;
+  font-weight: 500;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.navbar-nav .nav-link:hover {
+  color: #00A8FF !important;
+  transform: translateY(-2px);
+}
+
+/* Hiệu ứng khi active */
+.navbar-nav .router-link-active {
+  color: #00A8FF !important;
+  font-weight: bold;
+  border-bottom: 2px solid #00A8FF;
+}
+
+/* Hiệu ứng cho dropdown */
+.navbar-toggler {
+  border: none !important;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 8px;
+  transition: background 0.3s ease;
+}
+
+.navbar-toggler:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Nút đăng nhập/đăng xuất */
+.btn-outline-danger, .btn-outline-success {
+  border-radius: 20px;
+  padding: 8px 15px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-danger:hover {
+  background: #FF4B2B;
+  color: white;
+}
+
+.btn-outline-success:hover {
+  background: #00A8FF;
+  color: white;
+}
+
+/* Hiển thị tên user */
+.navbar-text {
+  font-size: 14px;
+  color: #ddd;
+}
+
+/* Responsive cho mobile */
+@media (max-width: 768px) {
+  .navbar-nav {
+    text-align: center;
+  }
+
+  .navbar-nav .nav-item {
+    padding: 5px 0;
+  }
+
+  .navbar-text {
+    display: block;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  
+}
+
 </style>

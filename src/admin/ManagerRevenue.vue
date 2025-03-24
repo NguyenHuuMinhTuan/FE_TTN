@@ -24,20 +24,21 @@
     <h4 class="text-right">Tổng doanh thu: {{ formatCurrency(totalRevenue) }}</h4>
 
     <!-- Grid chứa 4 biểu đồ -->
+    
     <div class="row">
-      <div class="col-6">
-        <canvas id="barChart"></canvas>
-      </div>
-      <div class="col-6">
-        <canvas id="lineChart"></canvas>
-      </div>
-      <div class="col-6">
-        <canvas id="pieChart"></canvas>
-      </div>
-      <div class="col-6">
-        <canvas id="horizontalBarChart"></canvas>
-      </div>
-    </div>
+  <div class="col-6 chart-container">
+    <canvas id="barChart"></canvas>
+  </div>
+  <div class="col-6 chart-container">
+    <canvas id="lineChart"></canvas>
+  </div>
+  <div class="col-6 chart-container">
+    <canvas id="pieChart"></canvas>
+  </div>
+  <div class="col-6 chart-container">
+    <canvas id="horizontalBarChart"></canvas>
+  </div>
+</div>
   </div>
 </template>
 
@@ -162,4 +163,12 @@ export default {
 .container {
   max-width: 1000px;
 }
+.chart-container {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
 </style>

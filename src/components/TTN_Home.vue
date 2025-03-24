@@ -1,656 +1,908 @@
 <template>
-  <div class="page-container">
-      <div class="carousel-section">
-          <swiper v-if="isClient" :modules="[Pagination]" :slides-per-view="1" :pagination="{ clickable: true }"
-              class="mySwiper" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave" @swiper="onSwiperInit">
-              <swiper-slide v-for="(image, index) in images" :key="index">
-                  <div class="image-wrapper">
-                      <img  :src="image" class="img-fluid" :alt="'Image ' + (index + 1)" @click="selectImage(index)" />
-                  </div>
-              </swiper-slide>
-          </swiper>
-      </div>
+  <div class="page-container-fluid">
+    <div class="carousel-section">
+      <swiper
+        v-if="isClient"
+        :modules="[Pagination]"
+        :slides-per-view="1"
+        :pagination="{ clickable: true }"
+        class="mySwiper"
+        @mouseenter="clearRotationInterval"
+        @mouseleave="startImageRotation"
+        @swiper="onSwiperInit"
+      >
+        <swiper-slide v-for="(video, index) in videos" :key="index">
+          <video class="video-background" autoplay loop muted playsinline>
+            <source :src="video" type="video/mp4" />
+          </video>
+        </swiper-slide>
+      </swiper>
+    </div>
+  </div>
 
-      <div class="featured-products">
-          <h2 class="section-title">Tất cả sản phẩm</h2>
-          <div class="products-grid">
-              <router-link v-for="product in randomProducts" :key="product.id" to="/thucdon" class="product-card">
-                  <div class="product-image">
-                      <img :src="product.image" :alt="product.name">
-                      <div class="product-overlay">
-                          <span class="view-more">Xem thêm</span>
-                      </div>
-                  </div>
-                  <div class="product-info">
-                      <h3>{{ product.name }}</h3>
-                      <p class="price">{{ formatPrice(product.price) }}</p>
-                  </div>
-              </router-link>
+  <div class="feature__container section_item" id="features">
+    <div class="title__content__container">
+      <div class="title__content__button">Dịch vụ</div>
+      <h1 class="title__content__text__1">Chào mừng bạn đến với TTN SHOP!</h1>
+    </div>
+
+    <div class="feature__content">
+      <div class="feature__content__item__box">
+        <div class="feature__content__item" v-for="(service, index) in services" :key="index">
+          <div class="feature__content__item__icon" :class="service.iconClass">
+            <i class="fab fa-dropbox"></i>
           </div>
-      </div>
-
-      <section class="update-info">
-          <div class="update-info-text">
-              <h2 class="center-text-share">VỀ COMEBUY</h2>
+          <div class="feature__content__item__title">{{ service.title }}</div>
+          <p class="feature__content__item__text">{{ service.description }}</p>
+          <div class="feature__content__item__button" :class="service.buttonClass">
+            <i class="fas fa-arrow-right"></i>
           </div>
-          <div class="icon-bottom-title"><img src="/Images/Info/line.webp" alt=""></div>
-          <div class="update-cart">
-              <div class="cart-info">
-                  <img src="/Images/Info/icon_uti_1.webp" alt="">
-                  <h4>COMEBUY hương vị tuyệt hảo</h4>
-                  <p>Niềm đam mê của chúng tôi gắn liền với những Lá Trà vì thế chúng tôi luôn mang đến hương vị hoàn hảo nhất</p>
-              </div>
-              <div class="cart-info">
-                  <img src="/Images/Info/icon_uti_2.webp" alt="">
-                  <h4>COMEBUY trà tươi</h4>
-                  <p>Made-to-order, công nghệ pha trà tiên tiến nhất mang đến cho bạn ly trà vẹn nguyên hương vị ngay khi bạn muốn</p>
-              </div>
-              <div class="cart-info">
-                  <img src="/Images/Info/icon_uti_3.png" alt="">
-                  <h4>Với COMEBUY, an toàn là trên hết</h4>
-                  <p>Comebuy cam kết sử dụng nguyên liệu cao cấp, mang đến bạn những đồ uống không chỉ ngon mà còn tốt cho sức khỏe</p>
-              </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="faq__container section_item" id="faq">
+    <div class="faq__content">
+      <div class="faq__content__left hidden left">
+        <div class="title__content__container title__content__container__faq__1">
+          <h1 class="title__content__text__1">Các câu hỏi thường gặp</h1>
+          <p class="title__content__text__2">
+            Bạn đang có những thắc mắc? Hãy chọn những vấn đề ở phía bên dưới nó có thể giúp ích cho bạn
+          </p>
+        </div>
+
+        <div class="faq__question__box">
+          <div class="faq__question__title" v-for="(faq, index) in faqs" :key="index">
+            <i class="fas fa-chevron-down"></i>
+            {{ faq.question }}
           </div>
-      </section>
-
-      <div class="danhMuc">
-          <h2 class="title-head">Danh mục sản phẩm</h2>
-          <div class="filter-buttons">
-          <!-- 3 nút phân loại sản phẩm -->
-          <button
-              :class="['filter-btn', { 'active-white': selectedFilter === 'promotion', 'inactive': selectedFilter !== 'promotion' }]"
-              @click="selectedFilter = 'promotion'">Khuyến mãi</button>
-          <button
-              :class="['filter-btn', { 'active-white': selectedFilter === 'best_seller', 'inactive': selectedFilter !== 'best_seller' }]"
-              @click="selectedFilter = 'best_seller'">Best Seller</button>
-          <button
-              :class="['filter-btn', { 'active-red': selectedFilter === 'noi_bat', 'inactive': selectedFilter !== 'noi_bat' }]"
-              @click="selectedFilter = 'noi_bat'">Sản phẩm nổi bật</button>
+        </div>
       </div>
 
-      <div class="products-grid">
-          <router-link v-for="product in filteredProducts" :key="product.id" to="/thucdon" class="product-card">
-              <div class="product-image">
-                  <img :src="product.image" :alt="product.name">
-                  <div class="product-overlay">
-                      <span class="view-more">Xem thêm</span>
-                  </div>
-              </div>
-              <div class="product-info">
-                  <h3>{{ product.name }}</h3>
-                  <p class="price">{{ formatPrice(product.price) }}</p>
-              </div>
-          </router-link>
+      <div class="faq__content__right hidden right">
+        <div class="title__content__container title__content__container__faq__2">
+          <h1 class="title__content__text__1">Không bao giờ bỏ lỡ bất kỳ cập nhật nào!</h1>
+          <p class="title__content__text__2 title__content__text__2__faq">
+            Đừng bỏ lỡ bất kì cập nhật nào của chúng tôi để có những thông tin khuyến mãi tốt nhất.
+          </p>
+        </div>
+        <div class="faq__content__right__input">
+          <input type="email" placeholder="Nhập địa chỉ email của bạn..." />
+          <a href="#" class="order__btn"><span></span>
+            <p>Gửi Ngay</p>
+          </a>
+        </div>
       </div>
-      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import { Swiper, SwiperSlide } from 'swiper/vue';
-import 'swiper/css';
-import 'swiper/css/pagination';
-import { Pagination } from 'swiper/modules';
-
+import { Swiper, SwiperSlide } from "swiper/vue";
+import "swiper/css";
+import "swiper/css/pagination";
+import { Pagination } from "swiper/modules";
 
 export default {
-  name: 'ComHome',
-  components: {
-      Swiper,
-      SwiperSlide
-  },
+  name: "ComHome",
+  components: { Swiper, SwiperSlide },
   data() {
-      return {
-          images: [
-              'https://newspaperads.ads2publish.com/wp-content/uploads/2021/05/redmi-note-10-pro-max-revolutionary-108mp-smartphone-ad-times-of-india-mumbai-25-05-2021.jpg',
-              'https://howtotechnaija.com/wp-content/uploads/2019/09/Mi-A3-price.jpg',
-              'https://i.ytimg.com/vi/eKCQvuqFt_0/maxresdefault.jpg',
-              'https://tabloidpulsa.id/wp-content/uploads/2022/04/OPPO-A96-First-Sale.jpg',
-              'https://th.bing.com/th/id/OIP.Brvt1nkqzIFBwGabUO1cnQHaEK?rs=1&pid=ImgDetMain',
-              'https://th.bing.com/th/id/OIP.WVnv-uFxcNdaSppgsyxWZAHaE3?rs=1&pid=ImgDetMain',
-              'https://th.bing.com/th/id/OIP.GKYnW00rWk5BJfnoj79LmAHaEK?rs=1&pid=ImgDetMain',
-              'https://mir-s3-cdn-cf.behance.net/project_modules/1400/3fd002165790179.640dc398939e2.jpg',
-              'https://www.everydayonsales.com/wp-content/uploads/2021/08/Xiaomi-Fans-Appreciation-Day-Sale.jpg',
-          ],
-          currentIndex: 0,
-          imageRotationInterval: null,
-          swiperInstance: null,
-          isClient: false,
-
-          products: [],
-          selectedFilter: 'promotion', 
-      };
-  },
-  computed: {
-      randomProducts() {
-          return this.shuffleArray([...this.products]).slice(0, 4);
-      },
-      filteredProducts() {
-          // Lọc sản phẩm dựa vào loại đã chọn
-          return this.products.filter(product => product.promotionType === this.selectedFilter);
-      },
+    return {
+      videos: Array.from({ length: 4 }, (_, i) => require(`@/assets/video/video-bg-header-${i + 1}.mp4`)),
+      isClient: false,
+      currentIndex: 0,
+      imageRotationInterval: null,
+      services: [
+        { title: "Thu Cũ Đổi Mới", description: "Dịch vụ thu cũ đổi mới chỉ áp dụng cho Apple.", iconClass: "icon-red", buttonClass: "button-red" },
+        { title: "Thay Màn Hình", description: "Dịch vụ thay màn hình, ép kính cho mọi dòng điện thoại.", iconClass: "icon-blue", buttonClass: "button-blue" },
+        { title: "Phụ Kiện Theo Máy", description: "Chuyên bán phụ kiện: Case AirPods, ốp lưng, ...", iconClass: "icon-yellow", buttonClass: "button-yellow" },
+        { title: "Sửa chữa & Bảo Hành", description: "Kiểm tra, sửa chữa, bảo hành sản phẩm.", iconClass: "icon-green", buttonClass: "button-green" }
+      ],
+      faqs: [
+        { question: "Các địa điểm bán hàng?" },
+        { question: "Các dịch vụ thanh toán trực tuyến?" },
+        { question: "Các dịch vụ sửa chữa?" },
+        { question: "Thông tin liên hệ với shop?" }
+      ]
+    };
   },
   mounted() {
-      this.isClient = true;
-      this.startImageRotation();
+    this.isClient = true;
+    this.startImageRotation();
+    this.observeFeatures();
+    this.observeFAQ();
   },
   beforeUnmount() {
-      this.clearRotationInterval();
+    this.clearRotationInterval();
   },
   methods: {
-      onSwiperInit(swiper) {
-          this.swiperInstance = swiper;
-      },
-      selectImage(index) {
-          this.currentIndex = index;
-          if (this.swiperInstance) {
-              this.swiperInstance.slideTo(index);
-          }
-      },
-      startImageRotation() {
-          this.clearRotationInterval();
-          this.imageRotationInterval = setInterval(() => {
-              this.currentIndex = (this.currentIndex + 1) % this.images.length;
-              if (this.swiperInstance) {
-                  this.swiperInstance.slideTo(this.currentIndex);
-              }
-          }, 1500);
-      },
-      clearRotationInterval() {
-          if (this.imageRotationInterval) {
-              clearInterval(this.imageRotationInterval);
-              this.imageRotationInterval = null;
-          }
-      },
-      handleMouseEnter() {
-          this.clearRotationInterval();
-      },
-      handleMouseLeave() {
-          this.startImageRotation();
-      },
-      shuffleArray(array) {
-          for (let i = array.length - 1; i > 0; i--) {
-              const j = Math.floor(Math.random() * (i + 1));
-              [array[i], array[j]] = [array[j], array[i]];
-          }
-          return array;
-      },
-      formatPrice(price) {
-          return new Intl.NumberFormat('vi-VN', {
-              style: 'currency',
-              currency: 'VND'
-          }).format(price * 1000);
+    onSwiperInit(swiper) {
+      this.swiperInstance = swiper;
+    },
+    startImageRotation() {
+      this.clearRotationInterval();
+      this.imageRotationInterval = setInterval(() => {
+        this.currentIndex = (this.currentIndex + 1) % this.videos.length;
+        if (this.swiperInstance) {
+          this.swiperInstance.slideTo(this.currentIndex);
+        }
+      }, 1500);
+    },
+    clearRotationInterval() {
+      if (this.imageRotationInterval) {
+        clearInterval(this.imageRotationInterval);
+        this.imageRotationInterval = null;
       }
+    },
+    observeFeatures() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('show');
+          }
+        });
+      }, { threshold: 0.3 });
+      document.querySelectorAll('.feature__content__item').forEach(el => observer.observe(el));
+    },
+    observeFAQ() {
+      console.log("Observer FAQ chạy...");
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              console.log("Phần tử hiển thị:", entry.target);
+              entry.target.classList.add("show");
+            }
+          });
+        },
+        { threshold: 0.2 }
+      );
+
+      const faqLeft = document.querySelector(".faq__content__left");
+      const faqRight = document.querySelector(".faq__content__right");
+
+      if (faqLeft) observer.observe(faqLeft);
+      if (faqRight) observer.observe(faqRight);
+    }
   },
   setup() {
-      return {
-          Pagination
-      };
+    return { Pagination };
   }
-}
+};
 </script>
 
+
 <style scoped>
-.page-container {
-  width: 100%;
-  overflow-x: hidden;
+.hidden {
+  opacity: 0;
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
 }
 
-.carousel-section {
-  width: 100%;
-  margin-bottom: 2.5rem;
-  position: relative;
-  
+.left {
+  transform: translateX(-80px);
 }
 
-.carousel-section .swiper {
-  width: 100%;
-  height: auto;
+.right {
+  transform: translateX(80px);
 }
 
-.image-wrapper {
-  position: relative;
-  width: 100%;
-  height: 500px;
-  overflow: hidden;
-  margin-top: 42px;
+/* Khi xuất hiện */
+.show {
+  opacity: 1;
+  transform: translateX(0);
 }
 
-.image-wrapper img {
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-  transition: transform 0.3s ease-in-out;
+.faq__container {
+  padding: 50px 20px;
+  background-color: #f9f9f9;
 }
 
-.image-wrapper:hover img {
-  transform: scale(1.05);
-}
-
-.story-container {
-  background-color: var(--bg-color, rgba(255, 255, 255, 0.95));
-  padding: 4rem 1.25rem;
-  position: relative;
-}
-
-.story-content {
-  max-width: 75rem;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 3.75rem;
-  align-items: start;
-}
-
-.left-content {
+.faq__content {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: start;
+  gap: 30px;
 }
 
-.left-content img {
+.faq__question__title {
+  background-color: white;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.faq__question__title:hover {
+  color: #007BFF; 
+}
+
+.video-background {
   width: 100%;
-  height: auto;
-  border-radius: 0.5rem;
-  box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.15);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 700px;
+  object-fit: cover;
 }
 
-.left-content img:hover {
-  transform: translateY(-0.5rem);
-  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.2);
+.title__content__container {
+  text-align: center;
 }
 
-.right-content {
+.title__content__button {
+  font-size: 12px;
+  padding: 10px 15px;
+  font-weight: 600;
+  background-color: rgba(71, 119, 244, 0.2);
+  color: var(#0099e5);
+}
+
+.title__content__text__1 {
+  font-size: 3vw;
+  font-weight: 600;
+}
+
+.feature__content__item__box {
+  display: flex;
+  justify-content: space-between;
+  padding: 50px 100px;
+}
+
+.feature__content__item {
+  flex-basis: 23%;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  padding-top: 1.25rem;
-}
-
-.title-container {
-  margin-bottom: 2rem;
-  position: relative;
-}
-
-.discover {
-  font-family: 'Playball', cursive;
-  color: #d4af37;
-  font-size: 2.625rem;
-  display: block;
-  margin-bottom: -0.9375rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.title-container h2 {
-  font-size: 3.5rem;
-  font-weight: 700;
-  margin: 0;
-  color:  #d88c18;
-  font-family: 'Montserrat', sans-serif;
-  letter-spacing: 0.1875rem;
-  text-transform: uppercase;
-}
-
-.description-box {
-  background-color: var(--box-bg-color, rgba(0, 0, 0, 0.8));
-  border-radius: 0.5rem;
-  padding: 2rem;
-  margin-top: 1.25rem;
-  width: 90%;
-  box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(8px);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.description-box:hover {
-  transform: translateY(-0.25rem);
-  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.25);
-}
-
-.description-box p {
-  font-size: 1rem;
-  line-height: 1.8;
-  color: var(--text-light, rgba(255, 255, 255, 0.7));
-  margin: 0;
-  text-align: justify;
-  font-family: 'Open Sans', sans-serif;
-}
-
-:deep(.swiper-pagination-bullet) {
-  width: 0.5rem;
-  height: 0.5rem;
-  background: var(--bullet-color, #cacaca);
-  opacity: 0.5;
-  transition: all 0.3s ease;
-}
-
-:deep(.swiper-pagination-bullet-active) {
-  background: var(--bullet-active-color, #fff);
-  opacity: 1;
-  transform: scale(1.2);
-}
-
-@media (max-width: 1024px) {
-  .story-content {
-      gap: 2rem;
-  }
-
-  .title-container h2 {
-      font-size: 3rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .story-content {
-      grid-template-columns: 1fr;
-      gap: 2.5rem;
-  }
-
-  .right-content {
-      align-items: center;
-      text-align: center;
-  }
-
-  .description-box {
-      width: 100%;
-  }
-
-  .title-container {
-      text-align: center;
-  }
-
-  .discover {
-      font-size: 2.25rem;
-  }
-
-  .title-container h2 {
-      font-size: 2.5rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .story-container {
-      padding: 2rem 1rem;
-  }
-
-  .discover {
-      font-size: 2rem;
-  }
-
-  .title-container h2 {
-      font-size: 2rem;
-      letter-spacing: 0.125rem;
-  }
-
-  .description-box {
-      padding: 1.5rem;
-  }
-}
-.update-info-text {
-  color: #d88c18;
-}
-.featured-products {
-  padding: 2rem 1.25rem;
-  background-color: #fff;
-}
-
-.section-title {
-  text-align: center;
-  font-size: 2.5rem;
-  color: #dfa71b;
-  margin-bottom: 3rem;
-  font-family: 'Montserrat', sans-serif;
-  position: relative;
-}
-
-.section-title::after {
-  content: '';
-  position: absolute;
-  bottom: -0.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 5rem;
-  height: 0.25rem;
-  background-color: #dfa71b;
-  border-radius: 0.125rem;
-}
-
-.products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-  max-width: 75rem;
-  margin: 0 auto;
-}
-
-.product-card {
-  background: white;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  text-decoration: none;
-  color: inherit;
-}
-
-.product-card:hover {
-  transform: translateY(-0.5rem);
-  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.2);
-}
-
-.product-image {
-height: 200px;
-overflow: hidden;
-display: flex;
-align-items: center;
-justify-content: center;
-}
-
-.product-image img {
-max-height: 100%;
-max-width: 100%;
-object-fit: contain;
-}
-
-.product-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
   align-items: center;
-  justify-content: center;
+  box-shadow: 0 0 10px 0 #80808030;
+  padding: 20px 30px;
+  border-radius: 5px;
+  gap: 15px;
+  transform: translateY(100px);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: transform 0.8s ease-out, opacity 0.8s ease-out;
 }
 
-.product-card:hover .product-overlay {
+.feature__content__item.show {
+  transform: translateY(0);
   opacity: 1;
 }
 
-.view-more {
-  color: white;
-  font-size: 1rem;
-  padding: 0.75rem 1.5rem;
-  border: 2px solid white;
-  border-radius: 2rem;
-  transition: all 0.3s ease;
+.feature__content__item__icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 30%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.product-info {
-  padding: 1.25rem;
+.icon-red { background-color: rgba(255, 76, 76, 0.1); color: #ff4c4c; }
+.icon-blue { background-color: rgba(0, 153, 229, 0.1); color: #0099e5; }
+.icon-yellow { background-color: rgba(255, 221, 0, 0.1); color: #ffdd00; }
+.icon-green { background-color: rgba(10, 191, 83, 0.1); color: #0abf53; }
+
+.button-red:hover { background-color: #ff4c4c; color: #fff; }
+.button-blue:hover { background-color: #0099e5; color: #fff; }
+.button-yellow:hover { background-color: #ffdd00; color: #fff; }
+.button-green:hover { background-color: #0abf53; color: #fff; }
+
+/* FAQ STARTS */
+#feature {
+  margin-top: 100px;
+}
+
+.title__content__container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   text-align: center;
 }
 
-.product-info h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  color: var(--text-color, #2c3e50);
-  margin-bottom: 0.5rem;
-}
-
-.price {
-  color: var(--accent-color, #8B4513);
-  font-weight: 600;
-  font-size: 1.125rem;
-}
-
-@media (max-width: 768px) {
-  .products-grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-      padding: 0 1rem;
-  }
-
-  .section-title {
-      font-size: 2rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .products-grid {
-      grid-template-columns: 1fr;
-  }
-
-  .section-title {
-      font-size: 1.75rem;
-  }
-}
-/* update-info */
-.update-info{
-  padding: 30px;
-  margin: 10px;
-}
-
-.cart-info img{
-  width: 150px;
-  height: auto;
+.title__content__button {
+  font-size: 12px;
+  display: inline-block;
+  padding: 10px 15px;
   border-radius: 2px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  background-color: rgba(71, 119, 244, 0.2);
+  color: var(#0099e5);
 }
 
-.cart-info{
+.title__content__button__samsung {
+  background-color: #77777754;
+  color: #111;
+}
+
+.title__content__button__apple {
+  background-color: #ff00002e;
+  color: red;
+}
+
+.title__content__button__xiaomi {
+  background-color: rgba(71, 119, 244, 0.2);
+  color: var(#0099e5);
+}
+
+.title__content__button__vivo {
+  background-color: #c89ecc52;
+  color: #bf44ca;
+}
+
+.title__content__button__oppo {
+  background-color: #27f8ea2e;
+  color: #58d1c9;
+}
+
+.title__content__button__vsmart {
+  background-color: #77777754;
+  color: #111;
+}
+
+.title__content__text__1 {
+  font-size: 3vw;
+  font-weight: 600;
+  letter-spacing: -1.5px;
+}
+
+.feature__content {
+  width: 100%;
+}
+
+.feature__content__item__box {
+  width: 100%;
+  padding: 50px 100px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.feature__content__item {
+  flex-basis: 23%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 0 10px 0 #80808030;
+  padding: 20px 30px;
+  transition: 0.3s;
+  border-radius: 5px;
+  gap: 15px;
+  transform: translateY(100px);
+  opacity: 0;
+}
+
+.feature__content__item:hover {
+  box-shadow: 0px 4px 10px 0 #808080c2;
+  transform: translateY(-10px);
+}
+
+.feature__content__item__icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 30%;
+}
+
+.feature__content__item__icon svg {
+  font-size: 40px;
+  line-height: 80px;
+}
+
+.feature__content__item__icon__1,
+.feature__content__item__button__1 {
+  background-color: rgba(255, 76, 76, 0.1);
+  color: #ff4c4c;
+  transition: 0.3s;
+}
+
+.feature__content__item__button__1:hover {
+  background-color: #ff4c4c;
+  color: #fff;
+}
+
+.feature__content__item__icon__2,
+.feature__content__item__button__2 {
+  background-color: rgba(0, 153, 229, 0.1);
+  color: #0099e5;
+  transition: 0.3s;
+}
+
+.feature__content__item__button__2:hover {
+  background-color: #0099e5;
+  color: #fff;
+}
+
+.feature__content__item__icon__3,
+.feature__content__item__button__3 {
+  background-color: rgba(255, 221, 0, 0.1);
+  color: #ffdd00;
+  transition: 0.3s;
+}
+
+.feature__content__item__button__3:hover {
+  background-color: #ffdd00;
+  color: #fff;
+}
+
+.feature__content__item__icon__4,
+.feature__content__item__button__4 {
+  background-color: rgba(10, 191, 83, 0.1);
+  color: #0abf53;
+  transition: 0.3s;
+}
+
+.feature__content__item__button__4:hover {
+  background-color: #0abf53;
+  color: #fff;
+}
+
+.feature__content__item__title {
+  font-weight: 600;
+  line-height: 1.7;
+  color: #0f1d46;
+  letter-spacing: -0.01em;
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+.feature__content__item__text {
   text-align: center;
-}
-
-.cart-info h4{
-  margin: 10px;
-  color: #373333;
-}
-
-.cart-info p{
-  color: #707070;
-  margin: 10px;
+  color: #777;
+  padding: 0 10px;
   font-size: 15px;
 }
 
-.cart-info a{
-  color: #000008;
-  font-weight: 550;
-}
-
-.center-text-share{
-  display:block;
-  color: #dfa71b;
+.feature__content__item__button {
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
   text-align: center;
-  text-transform: uppercase;
-  font-family: 'Courier New';
-  position: relative;
-  font-size: 40px;
-  /* font-weight: 500;  */
-  margin-bottom: 0;
-  /* letter-spacing: 1.8px; */
-}
-
-.icon-bottom-title {
-  display: flex; 
-  justify-content: center; 
-  align-items: center;
-  margin-bottom: 28px;
-}
-
-.update-cart{
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, auto));
-  gap: 3rem;
-  /* margin-bottom: 50px; */
-}
-.order-container {
-position: relative;
-overflow: hidden;
-height: 50px; /* Chiều cao của container */
-display: flex;
-justify-content: center;
-align-items: center;
-}
-
-.order-text {
-position: absolute;
-bottom: -50px; /* Bắt đầu từ bên dưới */
-animation: moveUp 1s ease forwards; /* Thời gian và hiệu ứng */
-font-size: 24px;
-color: #ff4500; /* Màu chữ */
-}
-
-@keyframes moveUp {
-from {
-  bottom: -50px;
-}
-to {
-  bottom: 0;
-}
-}
-.title-head {
-  font-size: 34px;
-  color: #dfa71b;
-  text-transform: uppercase;
-  padding-bottom: 30px;
   display: inline-block;
-  font-family: "Quicksand", sans-serif;
+  border-radius: 50%;
+  cursor: pointer;
 }
-.filter-buttons {
+/* Feature ENDS */
+
+/* About STARTS */
+div#about {
+  width: 100%;
+  padding-bottom: 100px;
+}
+
+.about__content {
+  width: 100%;
+  padding: 0 100px;
+  display: flex;
+}
+
+.about__content__left {
+  flex-basis: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.title__content__container__samsung,
+.title__content__container__xiaomi,
+.title__content__container__apple,
+.title__content__container__vivo,
+.title__content__container__oppo,
+.title__content__container__vsmart {
+  align-items: flex-start;
+}
+
+.title__content__text__1__samsung,
+.title__content__text__1__xiaomi,
+.title__content__text__1__apple,
+.title__content__text__1__vivo,
+.title__content__text__1__oppo,
+.title__content__text__1__vsmart {
+  text-align: start;
+}
+
+.title__content__text__2 {
+  text-align: start;
+  margin: 30px 0;
+}
+
+.about__content__samsung {
+  padding: 100px;
+}
+
+.about__content__xiaomi {
+  flex-direction: row-reverse;
+}
+
+.about__content__vivo {
+  flex-direction: row-reverse;
+}
+
+.about__content__vsmart {
+  flex-direction: row-reverse;
+}
+
+.about__content__left__check {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 15px;
+}
+
+.about__content__left__check__item {
+  display: flex;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+  align-items: center;
+}
+
+.about__content__left__check__icon {
+  background-color: #111;
+  color: #fff;
+  font-size: 10px;
+  width: 25px;
+  height: 25px;
+  line-height: 25px;
+  text-align: center;
+  border-radius: 50%;
+  margin-right: 15px;
+  font-size: 15px;
+  min-width: 25px;
+}
+
+.about__content__left__check__text {
+  font-size: 16px;
+  color: #111;
+  font-weight: 300;
+}
+
+.about__content__right {
+  flex-basis: 50%;
   display: flex;
   justify-content: center;
-  gap: 50px;
-  margin-bottom: 20px;
+  align-items: center;
 }
 
-.filter-btn {
-  padding: 10px 20px;
-  border: 1px solid white;
+.about__content__right__img {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.about__container__xiaomi,
+.about__container__apple,
+.about__container__vivo,
+.about__container__oppo,
+.about__container__vsmart {
+  margin-bottom: 150px;
+}
+
+.about__content__left__check__icon__xiaomi {
+  background-color: var(#0099e5);
+}
+.about__content__left__check__icon__apple {
+  background-color: #ed1822;
+}
+.about__content__left__check__icon__vivo {
+  background-color: #c89ecc;
+}
+.about__content__left__check__icon__oppo {
+  background-color: #58d1c9;
+}
+
+@media (max-width: 1200px) {
+  .feature__content__item__box {
+    padding: 50px 50px;
+  }
+}
+
+@media (max-width: 992px) {
+  .feature__content__item__box {
+    flex-wrap: wrap;
+  }
+  .feature__content__item {
+    flex-basis: 48%;
+    margin-bottom: 40px;
+  }
+  .title__content__text__1 {
+    font-size: 30px;
+  }
+  .about__content {
+    flex-wrap: wrap;
+    padding: 0 50px;
+  }
+  .about__content__samsung {
+    padding: 150px 50px;
+  }
+  .about__content__left,
+  .about__content__right {
+    flex-basis: 100%;
+  }
+  .about__content__right {
+    margin-top: 50px;
+    width: 100%;
+  }
+  #products {
+    margin-top: -100px;
+  }
+  .about__content__right__img img {
+    width: 50%;
+  }
+}
+
+@media (max-width: 600px) {
+  .feature__content__item {
+    flex-basis: 100%;
+  }
+  .about__content__right__img img {
+    width: 90%;
+    min-width: 270px;
+  }
+  .title__content__text__1 {
+    font-size: 25px;
+  }
+  .about__content {
+    padding: 0 20px;
+  }
+  .about__container__xiaomi,
+  .about__container__apple,
+  .about__container__vivo,
+  .about__container__oppo,
+  .about__container__vsmart {
+    margin-bottom: 50px;
+  }
+  .about__content__samsung {
+    padding: 50px 20px;
+  }
+}
+
+@media (max-width: 400px) {
+  .feature__content__item__box {
+    padding: 50px 20px;
+  }
+  .title__content__text__2,
+  .about__content__left__check__text {
+    font-size: 14px;
+  }
+  .header__menu__logo {
+    padding: 25px 20px;
+  }
+  .header__menu__logo.active,
+  .header__content__left__right {
+    padding: 20px;
+  }
+  .header__logo,
+  .open__menu__sidebar {
+    font-size: 25px;
+  }
+  .header__content__left h1 {
+    font-size: 25px;
+    margin-bottom: 0;
+  }
+  .title__content__text__1 {
+    padding: 0 20px;
+    font-size: 25px;
+  }
+}
+/* About ENDS */
+
+/* FAQ STARTS */
+.faq__content {
+  display: flex;
+  padding: 0 50px;
+  justify-content: space-between;
+  margin-bottom: 100px;
+}
+
+.title__content__container__faq__1 {
+  align-items: flex-start;
+}
+
+.faq__content__left,
+.faq__content__right {
+  padding: 0 50px;
+}
+
+.faq__question__title {
+  width: 100%;
+  padding: 20px 0;
+  position: relative;
+  padding-left: 30px;
   cursor: pointer;
-  font-size: 16px;
-  border-radius: 30px;
-  transition: background-color 0.3s;
+  color: #111;
+  font-size: 17px;
+  font-weight: 900;
+  transition: 0.3s;
 }
 
-.filter-btn.active-white {
-  background-color: #ff8a6c;
-  color: #fcfcfc;
+.faq__question__title.active {
+  color: var(#0099e5);
 }
 
-.filter-btn.active-red {
-  background-color: #ff8a6c;
-  color: white;
-}
-.filter-btn.active-red :hover {
-  background-color: #fc7c5c;
-}
-.filter-btn.inactive {
-  background-color: #ffffff;
-  color: #fc7c5c;
+.faq__question__title.active svg {
+  transform: rotate(180deg);
 }
 
-.products-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+.faq__question__title svg {
+  position: absolute;
+  left: 0;
+  font-size: 12px;
+  transition: 0.3s;
 }
-.danhMuc {
-  padding: 36px;
+
+.faq__question__title:hover {
+  color: var(#0099e5);
 }
-.products-grid {
-  padding: 30px;
+
+.faq__question__answer {
+  width: 100%;
+  height: 0px;
+  font-size: 15px;
+  color: #777;
+  transition: 0.3s;
+  overflow: hidden;
 }
+
+.faq__question__answer.active {
+  height: 70px;
+}
+
+.title__content__container__faq__2 {
+  align-items: flex-end;
+}
+
+.title__content__text__2__faq {
+  text-align: end;
+}
+
+.faq__content__right__input {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: rgb(128 128 128 / 18%) 0px 0px 10px 0px;
+  margin-top: 50px;
+}
+
+.faq__content__right__input input {
+  width: 100%;
+  height: 45px;
+  border: none;
+  padding: 0 20px;
+  outline: none;
+  border-right: 1px solid #80808075;
+}
+
+@media (max-width: 992px) {
+  .faq__content {
+    padding: 0 25px;
+    flex-wrap: wrap;
+    margin-bottom: 50px;
+  }
+  .faq__content__left,
+  .faq__content__right {
+    padding: 0 25px;
+    flex-basis: 100%;
+    margin-bottom: 50px;
+  }
+}
+
+@media (max-width: 600px) {
+  .faq__content {
+    padding: 0 10px;
+    flex-wrap: wrap;
+    margin-bottom: 50px;
+  }
+  .faq__content__left,
+  .faq__content__right {
+    padding: 0 10px;
+    flex-basis: 100%;
+    margin-bottom: 50px;
+  }
+}
+
+@media (max-width: 600px) {
+  .faq__content__right__input {
+    margin-top: 20px;
+  }
+  .faq__content__left,
+  .faq__content__right {
+    padding: 0 10px;
+    flex-basis: 100%;
+    margin-bottom: 50px;
+  }
+}
+
+/* FAQ ENDS */
+
+.scroll__to__top {
+  background-color: var(#0099e5);
+  width: 45px;
+  height: 45px;
+  text-align: center;
+  font-size: 14px;
+  border-radius: 50%;
+  line-height: 45px;
+  color: #fff;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+  cursor: pointer;
+  visibility: hidden;
+  opacity: 0;
+  transition: 0.3s;
+}
+
+.scroll__to__top.active {
+  visibility: visible;
+  opacity: 1;
+}
+
+.order__btn {
+  background-color: #fff;
+  border-radius: 2px;
+  text-transform: uppercase;
+  width: 170px;
+  height: 45px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.3s;
+  overflow: hidden;
+  position: relative;
+}
+
+.order__btn p {
+  color: #0f083a;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 25px;
+  letter-spacing: 0;
+  transition: 0.3s;
+}
+
+.order__btn:hover p {
+  color: #fff;
+  z-index: 1000;
+}
+
+.order__btn span {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background-color: #0f083a;
+  top: var(--yhover);
+  left: var(--xhover);
+  transition: width 0.5s, height 0.5s;
+  transform: translate(-50%, -50%);
+}
+
+.order__btn:hover span,
+.order__btn.active:hover span {
+  width: 100vw;
+  height: 100vh;
+  z-index: 999;
+}
+
+.order__btn__header.active {
+  background-color: var(#0099e5);
+  color: #fff;
+  transition: all 0.3s;
+}
+
+.order__btn__header.active p {
+  color: #fff;
+}
+.order__btn__sidebar {
+  width: 100%;
+  background-color: var(#0099e5);
+  color: #fff;
+  margin-top: 10px;
+}
+
 </style>
